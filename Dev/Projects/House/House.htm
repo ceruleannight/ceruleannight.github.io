@@ -1,0 +1,91 @@
+
+<html>
+<head>
+<title>House</title>
+
+<script src="TextConsole.js" language="javascript" type="text/javascript"></script>
+<script src="Game.js" language="javascript" type="text/javascript"></script>
+<script src="Parser.js" language="javascript" type="text/javascript"></script>
+<script language="javascript" type="text/javascript">
+//****************************************************
+var g_console=null;
+var g_inputBox;
+var g_maxCharPerLine=70;
+var g_game=null;
+var g_parser=null;
+//****************************************************
+function PageInit()
+{
+	g_console=new TextConsole(document,document.getElementById("mainPanelDiv"),500,18,25,g_maxCharPerLine);
+	g_console.InitPanels();
+
+	g_game=new Game(g_console);
+	g_parser=new Parser(g_game.verbArray,g_game.itemArray);
+	
+	g_inputBox=document.getElementById("textInput");
+	g_inputBox.value="";
+	g_inputBox.focus();
+	g_inputBox.maxLength=g_maxCharPerLine;
+
+	g_console.WriteText("Welcome to <b><i>House</i></b>.");
+	g_console.WriteText("You must escape!  Good luck.");
+	g_console.WriteText("");
+	g_game.Look(true);
+}
+//****************************************************
+function ParseCmd()
+{
+	var text=g_inputBox.value;
+	if(text=="``")
+	{
+		document.getElementById("reportBtn").style.display="block";
+		g_inputBox.value="";
+		return;
+	}
+
+	//text="The quick brown fox jumped over the lazy dog, and then they both rolled over and played dead "+
+	//	"while everybody else looked on in complete amazement scratching their heads.";
+	g_console.WriteText("&gt; "+text);
+	
+	var sentence=g_parser.Parse(text);
+	g_game.EvaluateSentence(sentence);
+	
+	g_inputBox.value="";
+}
+//****************************************************
+function RunReport()
+{
+	document.getElementById("reportDiv").innerHTML=g_game.DataReport();
+}
+//****************************************************
+function OnKeyDown(evt)
+{
+	evt=window.event||evt;
+	if(evt.keyCode==13)
+	{
+		ParseCmd();
+		return false;
+	}
+	return true;
+}
+//****************************************************
+</script>
+
+<style type="text/css">
+.consoleLine{font-family:Courier New; font-size:12px; padding-left:1px; padding-bottom:3px;}
+.roomTitle{font-family:Courier New; font-size:12px; font-weight:bold; color:#000000; background-color:#D0D0D0;}
+.reportTbl{font-family:Verdana; font-size:12px; border-left:solid 1px #000000; border-top:solid 1px #000000; margin:0px; padding:0px;}
+.reportTbl td{font-family:Verdana; font-size:12px; border-right:solid 1px #000000; border-bottom:solid 1px #000000; margin:0px; padding:3px;}
+</style>
+</head>
+<body onload="PageInit();" onkeydown="return OnKeyDown(event);">
+<div id="mainPanelDiv" style="border:solid 1px #000000; position:absolute; left:10px; top:10px; width:500px; height:450px;"></div>
+<div style="position:absolute; left:10px; top:460px;">
+	<input id="textInput" type="text" style="width:500px;" />
+	<input id="text1" type="text" style="display:none;" />
+</div>
+
+<input id="reportBtn" type="button" onclick="RunReport();" value="Report" style="position:absolute; left:520px; top:10px; display:none;" />
+<div id="reportDiv" style="position:absolute; left:520px; top:40px;"></div>
+</body>
+</html>
