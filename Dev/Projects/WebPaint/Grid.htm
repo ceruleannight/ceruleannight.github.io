@@ -1,0 +1,402 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Grid</title>
+	<meta charset="utf-8" />
+
+	<script src="../../../Scripts/Math.js" type="text/javascript"></script>
+	<script src="GridState.js" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+	//********************************************
+	var g_mode="";
+	var g_strokeActive=false;
+
+	var g_gridState=null;
+	//var g_gridWidth=30;
+	//var g_gridHeight=30;
+
+	//var g_maxX=g_gridWidth-1;
+	//var g_maxY=g_gridHeight-1;
+
+	//var g_cellWidth=20;
+	//var g_cellHeight=20;
+
+	var g_colors=["FF7D80","79FF79","3FA2FF","FDFF65","FFA043"];
+	//var g_colors=["FF7D80","79FF79","3FA2FF"];
+	var g_currColor="";
+	var g_rand;
+	//var g_cells=[];
+
+	//var g_restoreColors=["79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","79FF79","79FF79","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","3FA2FF","3FA2FF","79FF79","3FA2FF","3FA2FF","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79","79FF79"];
+	var g_restoreColors=[];
+
+	//********************************************
+	function PageInit()
+	{
+		g_gridState=new GridState();
+
+		g_rand=new RandomGen();
+		g_rand.seed=100;
+
+		SetMode();
+		InitGrid();
+		WriteColorPalette();
+		SetPaintColor(g_colors[0]);
+
+		//if(g_restoreColors){RestoreColors(g_restoreColors);}
+		//SetAllToSingleColor(g_colors[0]);
+	}
+	//********************************************
+	function InitGrid()
+	{
+		WriteGrid();
+
+		// Set grid host div height
+		var divH=g_gridState.gridHeight*g_gridState.cellHeight+10;
+		document.getElementById("gridHostDiv").style.height=divH+"px";
+	}
+	//********************************************
+	function SetResolution()
+	{
+		var resIdx=parseInt(document.getElementById("resRange").value,10);
+		g_gridState.SetResolution(resIdx);
+
+		InitGrid();
+	}
+	//********************************************
+	function SetMode()
+	{
+		g_mode=document.getElementById("modeDd").value;
+	}
+	//********************************************
+	function WriteColorPalette()
+	{
+		var html="<table cellspacing=\"0\">";
+		html+="<tr>";
+		for(var i=0; i<g_colors.length; i++)
+		{
+			var color=g_colors[i];
+			var x=i*25;
+
+			html+="<td>";
+			html+="<div style=\" width:20px; height:20px; "+
+				"border:solid 1px #000000; background-color:#"+color+";\" "+
+				"onclick=\"PaletteClicked('"+color+"');\""+
+				"></div>";
+			html+="</td>";
+		}
+		html+="</tr>";
+		html+="</table>";
+		document.getElementById("colorPaletteDiv").innerHTML=html;
+	}
+	//********************************************
+	function PaletteClicked(color)
+	{
+		if(g_mode=="CLEAR")
+		{
+			SetAllToSingleColor(color);
+			return;
+		}
+		SetPaintColor(color);
+	}
+	//********************************************
+
+	//********************************************
+	function WriteGrid()
+	{
+		var gw=g_gridState.gridWidth;
+		var gh=g_gridState.gridHeight;
+		var cw=g_gridState.cellWidth;
+		var ch=g_gridState.cellHeight;
+
+		var lastColIdx=g_colors.length-1;
+		g_gridState.cells=[];
+		var html="";
+		for(var y=0; y<gw; y++)
+		{
+			for(var x=0; x<gh; x++)
+			{
+				var colIdx=g_rand.NextInt(0,lastColIdx);
+				var color=g_colors[colIdx];
+
+				var i=x+y*gw;
+				html+=WriteCell(i,x*cw,y*ch,cw,ch,color);
+
+				g_gridState.cells.push(new Cell(i,color));
+			}
+		}
+		
+		document.getElementById("gridDiv").innerHTML=html;
+	}
+	//********************************************
+	function WriteCell(idx,x,y,w,h,bgColor)
+	{
+		return "<div id=\"cell-"+idx+"\" class=\"cell\""+
+			" onclick=\"Cc("+idx+")\""+
+			" onmousedown=\"CellMouseDown("+idx+");\""+
+			" onmouseover=\"CellMouseOver("+idx+");\""+
+			" style=\"position:absolute; left:"+x+"px; top:"+y+"px; width:"+w+"px; height:"+h+"px;"+
+				"background-color:#"+bgColor+";"+
+				"\""+
+			"></div>";
+	}
+	//********************************************
+	function CellInfo(idx)
+	{
+		this.idx=idx;
+		this.div=document.getElementById("cell-"+idx);
+		this.cell=g_gridState.cells[idx];
+
+		var y=Math.floor(idx/g_gridState.gridWidth);
+		this.x=idx-y*g_gridState.gridWidth;
+		this.y=y;
+		return this;
+	}
+	//********************************************
+	function GetCellInforByXY(x,y)
+	{
+		if(x<0 || y<0 || x>g_gridState.maxX || y>g_gridState.maxY){return null;}
+
+		var idx=y*g_gridState.gridWidth+x;
+		return new CellInfo(idx);
+	}
+	//********************************************
+
+	//********************************************
+	function Cc(idx)
+	{
+		var cellInfo=new CellInfo(idx);
+		
+		switch(g_mode)
+		{
+			//case "PAINT":PaintCell(cellInfo,g_currColor);break;
+			case "SPONGE":SoakUpColor(cellInfo);break;
+			case "FLOOD":FloodFill(cellInfo,g_currColor);break;
+		}
+	}
+	//********************************************
+	function CellMouseDown(idx)
+	{
+		if(g_mode=="PAINT")
+		{
+			var cellInfo=new CellInfo(idx);
+			PaintCell(cellInfo,g_currColor);
+			g_strokeActive=true;
+		}
+	}
+	//********************************************
+	function CellMouseOver(idx)
+	{
+		if(g_mode=="PAINT" && g_strokeActive)
+		{
+			var cellInfo=new CellInfo(idx);
+			PaintCell(cellInfo,g_currColor);
+		}
+	}
+	//********************************************
+	function PageMouseUp()
+	{
+		g_strokeActive=false;
+	}
+	//********************************************
+
+	//********************************************
+	function PaintCell(cellInfo,color)
+	{
+		cellInfo.div.style.backgroundColor="#"+color;
+		cellInfo.cell.bgColor=color;
+	}
+	//********************************************
+	function SetPaintColor(color)
+	{
+		g_currColor=color;
+		document.getElementById("currentColorDiv").style.backgroundColor="#"+color;
+	}
+	//********************************************
+	function SoakUpColor(cellInfo)
+	{
+		SetPaintColor(cellInfo.cell.bgColor);
+	}
+	//********************************************
+	function FloodFill(cellInfo,color)
+	{
+		//var info=new CellInfo(idx);
+		//alert(""+cellInfo.x+","+cellInfo.y);
+
+		if(cellInfo.cell.bgColor==color){return;} // The specified point is already the paint color
+		
+		var queue=[];
+		queue.push(cellInfo);
+		var colorToFillOn=cellInfo.cell.bgColor;
+
+		var curQueueIdx=0;
+		while(true)
+		{
+			//if(queue.length==0){break;}
+			if(curQueueIdx==queue.length){break;} // Was end of data reached?
+			var pt=queue[curQueueIdx];
+
+//alert(""+pt.cell.bgColor+" "+colorToFillOn);
+			if(pt.cell.bgColor==colorToFillOn)
+			{
+				PaintCell(pt,g_currColor);
+
+				if(pt.y>0) //North
+				{
+					//alert("N");
+					queue.push(GetCellInforByXY(pt.x,pt.y-1));
+				}
+				if(pt.y<g_gridState.maxY) // South
+				{
+					//alert("S");
+					queue.push(GetCellInforByXY(pt.x,pt.y+1));
+				}
+				if(pt.x>0) // West
+				{
+					//alert("W");
+					queue.push(GetCellInforByXY(pt.x-1,pt.y));
+				}
+				if(pt.x<g_gridState.maxX) // East
+				{
+					//alert("E");
+					queue.push(GetCellInforByXY(pt.x+1,pt.y));
+				}
+			}
+
+			curQueueIdx++;
+		}
+	}
+	//********************************************
+	function SetAllToSingleColor(color)
+	{
+		for(var i=0; i<g_gridState.cells.length; i++)
+		{
+			var cellInfo=new CellInfo(i);
+			cellInfo.cell.bgColor=color;
+			PaintCell(cellInfo,color);
+		}
+	}
+	//********************************************
+	
+	//********************************************
+	function OutputCellColors()
+	{
+		//document.getElementById("outputTa").innerText=WriteCellColors();
+	}
+	//********************************************
+	function StoreCellState(storageKey)
+	{
+		if(typeof(Storage)=="undefined")
+		{
+			alert("Local storage is unavailable on this browser version!");
+			return;
+		}
+
+		//var colorListStr=WriteCellColors();
+//alert(g_gridState.Test);
+//alert(g_gridState.WriteStorageJson);
+		var json=g_gridState.WriteStorageJson();
+		//alert(json);
+		
+		localStorage.setItem(storageKey,json);
+	}
+	//********************************************
+	function LoadCellState(storageKey)
+	{
+		var gridJsonStr=localStorage.getItem(storageKey);
+		if(!gridJsonStr){return;}
+
+//alert(gridJsonStr);
+		g_gridState.LoadFromJson(gridJsonStr);
+		
+		//eval("var colorArray=["+listStr+"]");
+		RestoreColors(g_colors);
+	}
+	//********************************************
+	//function WriteCellColors()
+	//{
+	//	var html="";
+	//	for(var i=0; i<g_gridState.cells.length; i++)
+	//	{
+	//		var cell=g_gridState.cells[i];
+	//		if(html!=""){html+=",";}
+	//		html+="\""+cell.bgColor+"\"";
+	//	}
+	//	return html;
+	//}
+	//********************************************
+	function RestoreColors()
+	{
+		var cellArr=g_gridState.cells;
+		for(var i=0; i<cellArr.length; i++)
+		{
+			var cell=cellArr[i];
+			var rgb=cell.bgColor;
+
+			var cellInfo=new CellInfo(i);
+			cellInfo.cell.bgColor=rgb;
+			PaintCell(cellInfo,rgb);
+		}
+	}
+	//********************************************
+	</script>
+
+	<link href="../main.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	body{font-family:Verdana; font-size:12px;}
+	.cell{border:solid 1px #303030; padding:0px; margin:0px; cursor:default;}
+	.toolbarTbl th{padding-left:4px; padding-right:4px}
+	</style>
+</head>
+<body onload="PageInit();" onmouseup="PageMouseUp()">
+	<table cellspacing="0" class="toolbarTbl">
+	<tr>
+		<th>Mode</th>
+		<th>Paint</th>
+		<th>Palette</th>
+		<th>Resolution</th>
+	</tr>
+	<tr>
+		<th>
+			<select id="modeDd" onchange="SetMode()">
+			<option value="PAINT">Paint</option>
+			<option value="SPONGE">Sponge</option>
+			<option value="FLOOD" selected="selected">Flood</option>
+			<option value="CLEAR">Clear</option>
+			</select>
+		</th>
+		<th>
+			<div id="currentColorDiv" style="width:20px; height:20px; border:solid 1px #000000;"></div>
+		</th>
+		<th>
+			<div id="colorPaletteDiv" style="position:relative;"></div>
+		</th>
+		<th>
+			<input id="resRange" type="range" min="1" max="10" value="5" onchange="SetResolution()" />
+		</th>
+	</tr>
+	</table>
+	
+	<div id="gridHostDiv" style="position:relative; left:10px; top:10px; width:800px;">
+		<div id="gridDiv"></div>
+	</div>
+
+	<div style="position:relative; width:700px; padding:10px;">
+		<table>
+		<tr>
+			<td><input type="button" value="Output" onclick="OutputCellColors()" style="" /></td>
+			<td><textarea id="outputTa"></textarea></td>
+			<td>&nbsp;</td>
+			<td></td>
+			<td>
+				<input type="button" value="Store 1" style="width:65px;" onclick="StoreCellState('COLORS1');" /><br />
+				<div style="height:2px;"></div>
+				<input type="button" value="Load 1" style="width:65px;" onclick="LoadCellState('COLORS1');" /><br />
+			</td>
+		</tr>
+		</table>
+	</div>
+</body>
+</html>

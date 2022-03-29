@@ -1,0 +1,116 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Grow 2</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+
+	<script src="CommonScripts/Color.js"></script>
+	<script src="CommonScripts/Mouse.js"></script>
+	<script src="CommonScripts/PcMath.js"></script>
+
+	<script src="Scripts/OffsetManager.js"></script>
+	<script src="Scripts/WorldSettings.js"></script>
+	<script src="Scripts/WorldSetupUI.js"></script>
+	<script src="Scripts/WorldGrid.js"></script>
+	<script src="Scripts/CrtlPanelUI.js"></script>
+	<script src="Scripts/World.js"></script>
+	<script src="Scripts/Entity.js"></script>
+	<script>
+	//************************************************
+	var g_mouseDown=false;
+	var g_lastMousepos=null;
+	//************************************************
+	function PageInit()
+	{
+		RenderWorldSetupPanel();
+		DrawCellSizeValue();
+		ShowWorldSetupPanel(true);
+		PaintCheck();
+	}
+	//************************************************
+	function InitWorld()
+	{
+		ShowWorldSetupPanel(false);
+		ShowWorldPanel(true);
+
+		g_world=new World(false);
+		g_world.Update();
+		g_world.InitEntities();
+
+		RenderControlPanel();
+		ShowCancelWorldRecreateBtn(true); // (needs to be available from now on)
+	}
+	//************************************************
+
+	//************************************************
+	function PageMouseDown(evt)
+	{
+		evt=evt||window.event;
+
+		var div=document.getElementById("debugInfoDiv");
+		if(!div){return;}
+		div.innerHTML="Mouse Down";
+		g_mouseDown=true;
+	}
+	//************************************************
+	function PageMouseUp(evt)
+	{
+		evt=evt||window.event;
+
+		var div=document.getElementById("debugInfoDiv");
+		if(!div){return;}
+		div.innerHTML="Mouse Up";
+		g_mouseDown=false;
+	}
+	//************************************************
+	function MouseMove(evt)
+	{
+		evt=evt||window.event;
+
+		g_lastMousepos=new MousePos(evt);
+		g_lastMousepos.X-=20;
+		g_lastMousepos.Y-=30;
+		//let x=mPos.X-20;
+		//let y=mPos.Y-30;
+
+		//var div=document.getElementById("debugInfoDiv");
+		//if(!div){return;}
+		//div.innerHTML="Mouse Move ("+x+","+y+")";
+	}
+	//************************************************
+	function PaintCheck()
+	{
+		if(!g_mouseDown || !g_world.ready || !g_lastMousepos){setTimeout("PaintCheck()",100);return;}
+
+		PaintCell(g_lastMousepos.X,g_lastMousepos.Y);
+
+		setTimeout("PaintCheck()",100);
+	}
+	//************************************************
+		//PaintCell(x_grid:number,y_grid:number)
+	</script>
+	<link href="Main.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	</style>
+</head>
+<body onload="PageInit()" onmousedown="PageMouseDown(event)" onmouseup="PageMouseUp(event)" onmousemove="MouseMove(event)">
+
+	<div id="worldPanelDiv" style="position:absolute; left:20px; top:10px; display:none;">
+		<div class="hCenter">
+			&nbsp;
+			G&nbsp;&nbsp;&nbsp;
+			R&nbsp;&nbsp;&nbsp;
+			O&nbsp;&nbsp;&nbsp;
+			W&nbsp;&nbsp;&nbsp;
+			2
+		</div>
+		<div id="gridDiv" style="position:absolute; left:0px; top:20px;"></div>
+		<div id="controlPanelDiv" class="ctrlPanel" style="position:absolute; left:620px; top:25px; width:200px;"></div>
+	</div>
+
+	<div id="worldSetupOuterPanelDiv" class="worldSetupPanel hCenter"></div>
+</body>
+</html>
