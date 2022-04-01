@@ -3,7 +3,7 @@ body{margin:0px; font-family:Verdana; font-size:14px; background-color:#FFFFFF;}
 ol{margin:0px; margin-left:25px; padding:0px;}
 ul{margin:0px; margin-left:25px; padding:0px;}
 
-.g_hdrBg{width:100%; height:32px; background-image:url(/_imgs/HeaderBg2.jpg); font-family:Verdana; font-size:16px; color:#FFFFFF; font-weight:bold;}
+.g_hdrBg{width:100%; height:32px; background-image:url(./_imgs/HeaderBg2.jpg); font-family:Verdana; font-size:16px; color:#FFFFFF; font-weight:bold;}
 
 .g_layoutTbl{margin:0px; padding:0px;}
 .g_layoutTbl th{margin:0px; padding:0px;}
