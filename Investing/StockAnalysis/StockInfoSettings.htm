@@ -1,0 +1,60 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Stock Info Settings</title>
+
+	<script src="../../Scripts/CommonFnc.js" type="text/javascript"></script>
+	<script src="../../Scripts/CookieFnc.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	//**************************************************
+	function PageInit()
+	{
+		var tickerList=Trim(ReadCookieQuick(document,"tickerList"));
+		var ta=document.getElementById("tickerListTa");
+		ta.innerText=tickerList;
+		ta.focus();
+	}
+	//**************************************************
+	function SetList()
+	{
+		var ta=document.getElementById("tickerListTa");
+		SetCookieQuick(document,"tickerList",ta.value);
+		document.location.href="StockInfo.htm";
+	}
+	//**************************************************
+	
+	//**************************************************
+	function OnKeyDown(evt)
+	{
+		evt=evt?evt:window.event; // compatibility
+		if(evt.keyCode==13){SetList();}
+		return true;
+	}
+	//**************************************************
+	</script>
+
+	<link href="../../main.css" rel="stylesheet" type="text/css" />
+</head>
+<body onload="PageInit();" onkeydown="return OnKeyDown(event);">
+<div class="g_hline"></div>
+<table class="g_hdrBg"><tr><td style="vertical-align:middle;">&nbsp;Stock Info Settings</td></tr></table>
+<div class="g_hline"></div>
+<div class="g_bcDiv">
+	&nbsp;
+	<a href="../../index.htm" class="g_navLink12px">Home</a> &gt;
+	<a href="../_menu.htm" class="g_navLink12px">Investing</a> &gt;
+	<a href="StockInfo.htm" class="g_navLink12px">Stock Info</a> &gt;
+	Stock Info Settings
+</div>
+<div class="g_hline"></div>
+
+<div style="padding:10px; width:600px;">
+	<b>Set Custom Ticker List</b><br />
+	Separate tickers with a single space then click Set.<br />
+	<textarea id="tickerListTa" cols="50" rows="20"></textarea>
+	<input type="button" value="Set" onclick="SetList();" />
+</div>
+</body>
+</html>

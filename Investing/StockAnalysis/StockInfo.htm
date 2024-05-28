@@ -1,0 +1,383 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Stocks</title>
+	<script src="../../Scripts/CommonFnc.js" type="text/javascript"></script>
+	<script src="../../Scripts/CookieFnc.js" type="text/javascript"></script>
+	<script src="../../Scripts/ParseUriParams.js" type="text/javascript"></script>
+	<script src="../../Scripts/Sorter/script.js" type="text/javascript"></script>
+	<script src="../Scripts/InvestFnc.js" type="text/javascript"></script>
+	<script src="Data.js" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+	//******************************************************
+	var g_stockList;
+	//******************************************************
+	function PageInit()
+	{
+		g_stockList=InitDataArray1();
+		
+		WriteMainDisplay();
+		InitSections();
+
+		//RenderAll();
+		ShowAll(false);
+
+		CheckUrlForTicker();
+		WriteLinksFromStoredTickerList();
+
+		document.getElementById("dynamicDataTb").focus();
+	}
+	//******************************************************
+	function CheckUrlForTicker()
+	{
+		var urlParser=new UriParameters(window.document.URL.toString());
+		var ticker=urlParser.GetValue("ticker","");
+		ticker=ticker.toUpperCase();
+		if(ticker!="")
+		{
+			document.getElementById("dynamicDataTb").value=ticker;
+			RenderDynamicData();
+		}
+	}
+	//******************************************************
+	function GetStockByTicker(ticker)
+	{
+		for(var i=0;i<g_stockList.length;i++)
+		{
+			var stock=g_stockList[i];
+			if(stock==null){continue;}
+			if(stock.ticker==ticker){return stock;}
+		}
+		return null;
+	}
+	//******************************************************
+	function ShowAll(show)
+	{
+		for(var i=0;i<g_stockList.length;i++)
+		{
+			var stock=g_stockList[i];
+			ShowSection(stock.section,show);
+		}
+	}
+	//******************************************************
+	function ToggleCollapse(ticker)
+	{
+		var stock=GetStockByTicker(ticker);
+		if(stock==null){return;}
+		var section=stock.section;
+		ShowSection(section,!section.isDisplayed);
+	}
+	//******************************************************
+	function InitSections()
+	{
+		for(var i=0;i<g_stockList.length;i++)
+		{
+			var stock=g_stockList[i];
+			stock.section=new Section(stock.ticker);
+		}
+	}
+	//******************************************************
+	function ShowSection(section,show)
+	{
+		if(section==null){return;}
+		if(section.sectionDiv){section.sectionDiv.style.display=show?"block":"none";}
+		if(section.collapseImg){section.collapseImg.src="../../_imgs/"+(show?"Minus.gif":"Plus.gif");}
+		section.isDisplayed=show;
+	}
+	//******************************************************
+	function Section(ticker)
+	{
+		this.isDisplayed=false;
+		this.ticker=ticker;
+		this.sectionDiv=document.getElementById(ticker+"_div");
+		this.collapseImg=document.getElementById(ticker+"_CollapseImg");
+
+		return this;
+	}
+	//******************************************************
+	
+	//******************************************************
+	//function RenderAll()
+	//{
+	//	for(var i=0;i<g_stockList.length;i++)
+	//	{
+	//		var stock=g_stockList[i];
+	//		var ticker=stock.ticker;
+	//
+	//		// Links
+	//		var div=document.getElementById(ticker+"_linksDiv");
+	//		if(div!=null){div.innerHTML=WriteLinks(ticker);}
+	//
+	//		// Info
+	//		div=document.getElementById(ticker+"_stdInfo");
+	//		if(div!=null){div.innerHTML=WriteStandardInfo(stock);}
+	//	}
+	//}
+	//******************************************************
+	// Writes the primary display of data
+	function WriteMainDisplay()
+	{
+		var html="";
+		for(var i=0;i<g_stockList.length;i++)
+		{
+			var stock=g_stockList[i];
+			if(stock.type=="STOCK")
+			{
+				html+=BuildAMainSectionHtml(stock);
+			}
+			if(stock.type=="SPACER")
+			{
+				html+="<div class=\"g_hline\"></div><br />";
+			}
+		}
+		
+		document.getElementById("mainDataSetDiv").innerHTML=html;
+	}
+	//******************************************************
+	function BuildAMainSectionHtml(stockData)
+	{
+		var ticker=stockData.ticker;
+		var html="";
+		html+="<div class=\"g_hline\"></div>";
+		html+="<table>";
+		html+="<tr>";
+		html+="<td><a href=\"#\" onclick=\"ToggleCollapse('"+ticker+"');return false;\">"+
+			"<img id=\""+ticker+"_CollapseImg\" src=\"../../_imgs/Minus.gif\" style=\"border:none;\" /></a></td>";
+		html+="<td><b>"+stockData.companyName+"</b> ("+ticker+")</td>";
+
+		var inDepthTxt="";
+		if(stockData.inDepth)
+		{
+			inDepthTxt="&nbsp;<a href=\""+stockData.inDepth+"\" class=\"g_link12px\" target=\"_blank\">In-Depth</a>";
+		}
+		html+="<td>"+inDepthTxt+"</td>";
+		
+		html+="</tr>";
+		html+="</table>";
+		html+="<div id=\""+ticker+"_div\">";
+			html+=WriteLinks(ticker,null);
+			html+="<br />";
+			html+=WriteStandardInfo(stockData);
+			html+="<br />";
+			html+="<div class=\"g_hline\"></div><br />";
+		html+="</div>";
+		return html;
+	}
+	//******************************************************
+	function WriteLinks(ticker,labelTxt)
+	{
+		var html="";
+		if(labelTxt){html+=labelTxt;}
+		else{html+="Sites: ";}
+		
+		html+="<a href=\"http://finance.yahoo.com/q?s="+ticker+"&ql=1\" target=\"_blank\" class=\"g_linkAlt12px\">Yahoo</a> ";
+		html+="<a href=\"http://investing.money.msn.com/investments/stock-price?Symbol="+ticker+"&ocid=qbeb\" target=\"_blank\" class=\"g_linkAlt12px\">MSN Money</a> ";
+		html+="<a href=\"http://www.google.com/finance?q="+ticker+"\" target=\"_blank\" class=\"g_linkAlt12px\">Google</a> ";
+		html+="<a href=\"http://quote.morningstar.com/stock/s.aspx?t="+ticker+"\" target=\"_blank\" class=\"g_linkAlt12px\">Morningstar</a> ";
+		html+="<a href=\"http://caps.fool.com/Ticker/"+ticker+".aspx\" target=\"_blank\" class=\"g_linkAlt12px\">Fool.com</a> ";
+		html+="<a href=\"http://www.gurufocus.com/stock/"+ticker+"\" target=\"_blank\" class=\"g_linkAlt12px\">GuruFocus</a> ";
+		html+="&nbsp;&nbsp;";
+		html+="<a href=\"http://investing.money.msn.com/investments/sec-filings/?symbol="+ticker+"\" target=\"_blank\" class=\"g_linkAlt12px\">SEC Filings</a> ";
+		
+		return html;
+	}
+	//******************************************************
+	function WriteStandardInfo(stock)
+	{
+		var html="";
+		if(stock.website){html+="Website: <a href=\""+stock.website.url+"\" target=\"_blank\" class=\"g_linkAlt12px\">"+stock.website.title+"</a><br />";}
+		html+="Info Date: "+stock.infoDate+"<br />";
+		if(stock.price){html+="Price: "+stock.price+"<br />";}
+		html+="P/B: "+stock.pb+"<br />";
+		html+="P/E: "+stock.pe+"<br />";
+		html+="PEG: "+stock.peg+"<br />";
+		html+="Price/Levered FCF: "+stock.pLeveredFcf+"<br />";
+		html+="Debt/Equity: "+stock.debtToEquity+"<br />";
+		if(stock.roe){html+="ROE: "+stock.roe+"<br />";}
+		if(stock.roic){html+="ROIC: "+stock.roic+"<br />";}
+		if(stock.roic5YAvg){html+="ROIC 5 Year Avg: "+stock.roic5YAvg+"<br />";}
+		html+="Insider Ownership: "+stock.insiderOwnership+"<br />";
+		if(stock.grahamNumber){html+="Graham#: $"+stock.grahamNumber+"<br />";}
+		if(stock.notes){html+="Notes: <span class=\"noteTxt\">"+stock.notes+"</span><br />";}
+		
+		return html;
+	}
+	//******************************************************
+	
+	//******************************************************
+	function WriteLinksFromStoredTickerList()
+	{
+		var tickerList=Trim(ReadCookieQuick(document,"tickerList"));
+		if(tickerList==""){return;}
+		var arr=tickerList.split(" ");
+
+		var html="";
+		for(var i=0;i<arr.length;i++)
+		{
+			var ticker=arr[i];
+			ticker=ticker.toUpperCase();
+
+			html+=WriteLinks(ticker,"Sites for <b>"+ticker+"</b>: ")+"<br />";
+		}
+		if(html!="")
+		{
+			html="Custom Site list<br />"+html+"<br />";
+		}
+		document.getElementById("storedTickerTblDiv").innerHTML=html;
+	}
+	//******************************************************
+
+	//******************************************************
+	function WriteDataTbl()
+	{
+		// displayTbl
+		var html="<table id=\"stockDataTbl\" class=\"g_displayTbl\" cellspacing=\"0\">";
+		html+="<tr>";
+		html+="<th>Company</th>";
+		html+="<th nowrap=\"true\">Info Date</th>";
+		html+="<th>P/B</th>";
+		html+="<th>P/E</th>";
+		html+="<th>PEG</th>";
+		html+="<th>Price/Levered FCF</th>";
+		html+="<th>Debt/Equity</th>";
+		html+="<th>Insider Ownership</th>";
+		html+="</tr>";
+
+		for(var i=0;i<g_stockList.length;i++)
+		{
+			var stock=g_stockList[i];
+			if(stock.type=="STOCK")
+			{
+				html+=WriteDataTblRow(stock);
+			}
+		}
+		html+="</table><br />";
+
+		document.getElementById("dataTblDiv").innerHTML=html;
+		//document.getElementById("ta").innerText=html;
+		
+		//setTimeout("InitSorter()",1000);
+
+		//var wnd=window.open("","StockData","width=700,height=500,menubar=0,toolbar=0,status=1,scrollbars=1,resizable=1",true);
+		//wnd.document.write(html);
+		//wnd.document.close();
+	}
+	//******************************************************
+	function WriteDataTblRow(stock)
+	{
+		var html="<tr>";
+		html+="<td nowrap=\"true\">"+stock.companyName+" ("+stock.ticker+")</td>";
+		html+="<td>"+stock.infoDate+"</td>";
+		html+="<td>"+stock.pb+"</td>";
+		html+="<td>"+stock.pe+"</td>";
+		html+="<td>"+stock.peg+"</td>";
+		html+="<td>"+stock.pLeveredFcf+"</td>";
+		html+="<td>"+stock.debtToEquity+"</td>";
+		html+="<td>"+stock.insiderOwnership+"</td>";
+		html+="</tr>";
+		return html;
+	}
+	//******************************************************
+	function InitSorter()
+	{
+		var sorter=new table.sorter("stockDataTbl");
+		sorter.init("stockDataTbl",1);
+	}
+	//******************************************************
+
+	//******************************************************
+	function RenderDynamicData()
+	{
+		var div=document.getElementById("dynamicDataDiv");
+		var ticker=Trim(document.getElementById("dynamicDataTb").value);
+		if(ticker=="")
+		{
+			div.innerHTML="";
+			return;
+		}
+		if(ticker=="snapshots"){document.location.href="../SnapShots.htm";}
+
+		ticker=ticker.toUpperCase();
+		document.getElementById("dynamicDataTb").value=ticker; // Put the upper case ticker back in the textbox
+
+		var label="Sites for <b>"+ticker+"</b>: ";
+
+		var html=WriteLinks(ticker,label);
+		var stockData=GetStockByTicker(ticker);
+		if(stockData!=null)
+		{
+			html+="<br />";
+			html+=WriteStandardInfo(stockData);
+		}
+		html+="<br /><br />";
+		html+="<div class=\"g_hline\" />";
+
+		div.innerHTML=html;
+	}
+	//******************************************************
+
+	//******************************************************
+	function OnKeyDown(evt)
+	{
+		evt=evt?evt:window.event; // compatibility
+		if(evt.keyCode==13){RenderDynamicData();}
+		return true;
+	}
+	//******************************************************
+	</script>
+
+	<link href="../../main.css" rel="stylesheet" type="text/css" />
+	<link href="../../Scripts/Sorter/style.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	.noteTxt{color:#C0A000;}
+	</style>
+</head>
+<body onload="PageInit();" onkeydown="return OnKeyDown(event);">
+<div class="g_hline"></div>
+<table class="g_hdrBg"><tr><td style="vertical-align:middle;">&nbsp;Stocks Analysis</td></tr></table>
+<div class="g_hline"></div>
+<div class="g_bcDiv">
+	&nbsp;
+	<a href="../../index.htm" class="g_navLink12px">Home</a> &gt;
+	<a href="../_menu.htm" class="g_navLink12px">Investing</a> &gt;
+	Stock Analysis
+</div>
+<div class="g_hline"></div>
+
+<div style="padding:10px;">
+	<table cellspacing="0" style="width:100%;">
+	<tr>
+		<td style="padding:0px;">
+			Produce links for ticker:
+			<input id="dynamicDataTb" type="text" style="width:70px;" /><br />
+			<div id="dynamicDataDiv"></div>
+		</td>
+		<td style="text-align:right;">
+			<a href="StockInfoSettings.htm" class="g_link14px">Settings</a>&nbsp;
+		</td>
+	</tr>
+	</table>
+	<br />
+	<div id="storedTickerTblDiv"></div>
+	
+	<table style="width:100%;">
+	<tr>
+		<td>
+			Show:
+			<a href="#" onclick="ShowAll(true);return false;" class="g_link14px">All</a>&nbsp;|
+			<a href="#" onclick="ShowAll(false);return false;" class="g_link14px">None</a>
+		</td>
+	</tr>
+	</table>
+	<div id="mainDataSetDiv"></div>
+	<div class="g_hline"></div>
+
+	<br />
+	<a href="#" onclick="WriteDataTbl();return false;" class="g_linkAlt14px">Show Data Table</a>
+	<div id="dataTblDiv"></div>
+
+</div>
+</body>
+</html>

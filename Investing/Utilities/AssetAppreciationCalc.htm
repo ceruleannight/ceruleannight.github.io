@@ -1,0 +1,205 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Appreciation Calculator</title>
+
+	<script src="../../Scripts/CommonFnc.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	//**********************************************
+	var g_startingAmount=0;
+	var g_yearsListed=0;
+	//**********************************************
+	function GenDataTable()
+	{
+		g_startingAmount=LoadTextboxFloat("startingAmountTb",0);
+		var annualDeposit=LoadTextboxFloat("annualDepositTb",0);
+		var annualGrowthRate=LoadTextboxFloat("annualGrowthRateTb",0);
+		g_yearsListed=LoadTextboxInt("yearsTb",0);
+		
+		var dataTblHtml="Data Table<br />";
+		dataTblHtml+="<table cellspacing=\"0\"><tr><td>";
+		dataTblHtml+="<table class=\"g_displayTbl\" cellspacing=\"0\">";
+		dataTblHtml+="<tr class=\"g_tblHrdBg\">";
+		dataTblHtml+="<th>Year</th>";
+		dataTblHtml+="<th>Account Value</th>";
+		dataTblHtml+="<th>Appreciation</th>";
+		dataTblHtml+="<th>Deposit Impact</th>";
+		dataTblHtml+="<th>Growth Rate</th>";
+		dataTblHtml+="<th>Deposit</th>";
+		dataTblHtml+="</tr>";
+		
+		var year=0;
+		var value=g_startingAmount;
+		var accumAppreciation=0;
+		var accumDeposit=0;
+		for(var i=0; i<g_yearsListed; i++)
+		{
+			var depositImpact=CalcValueImpactPercent(annualDeposit,value);
+			var growth=value*annualGrowthRate;
+			value+=growth;
+			value+=annualDeposit;
+			year++;
+			accumAppreciation+=growth;
+			accumDeposit+=annualDeposit;
+
+			dataTblHtml+="<tr>";
+			dataTblHtml+="<td style=\"text-align:center;\">"+year+"</td>";
+			dataTblHtml+="<td id=\"accVal"+i+"\" style=\"text-align:right;\">$"+CommaFormatNum(RoundTo(value,2))+"</td>";
+			dataTblHtml+="<td id=\"apprec"+i+"\" style=\"text-align:right;\">$"+CommaFormatNum(RoundTo(growth,2))+"</td>";
+			dataTblHtml+="<td id=\"depositImpact"+i+"\" style=\"text-align:center;\">"+RoundTo(depositImpact,2)+"%</td>";
+
+			dataTblHtml+="<td style=\"text-align:center;\">"+
+				"<input id=\"growth"+i+"\" type=\"textbox\" style=\"width:100px;\" value=\""+annualGrowthRate+"\" /></td>";
+
+			dataTblHtml+="<td style=\"text-align:center;\">"+
+				"<input id=\"deposit"+i+"\" type=\"textbox\" style=\"width:70px;\" value=\""+annualDeposit+"\" /></td>";
+			dataTblHtml+="</tr>";
+		}
+		dataTblHtml+="</table>";
+
+		dataTblHtml+="</td><td style=\"vertical-align:top;\">";
+		dataTblHtml+="<br /><br />";
+		dataTblHtml+="<input type=\"button\" value=\"Recalculate Table\" onclick=\"RecalulateTableValues();\" />";
+		dataTblHtml+="</td></tr></table>";
+		
+		WriteTotals(accumAppreciation,accumDeposit,value);
+		//document.getElementById("finishValueDiv").innerHTML="$"+CommaFormatNum(RoundTo(finishValue,2));
+		
+		document.getElementById("dataTblDiv").innerHTML=dataTblHtml;
+	}
+	//**********************************************
+	function RecalulateTableValues()
+	{
+		var value=g_startingAmount;
+		var accumAppreciation=0;
+		var accumDeposit=0;
+		for(var i=0; i<g_yearsListed; i++)
+		{
+			var growthRate=parseFloat(document.getElementById("growth"+i).value);
+			var deposit=parseInt(document.getElementById("deposit"+i).value,10);
+
+			var depositImpact=CalcValueImpactPercent(deposit,value);
+			var growth=value*growthRate;
+			value+=growth;
+			value+=deposit;
+
+			accumAppreciation+=growth;
+			accumDeposit+=deposit;
+
+			document.getElementById("accVal"+i).innerHTML="$"+CommaFormatNum(RoundTo(value,2));
+			document.getElementById("apprec"+i).innerHTML="$"+CommaFormatNum(RoundTo(growth,2));
+			document.getElementById("depositImpact"+i).innerHTML=""+RoundTo(depositImpact,2)+"%";
+		}
+		WriteTotals(accumAppreciation,accumDeposit,value);
+	}
+	//**********************************************
+	function WriteTotals(accumAppreciation,accumDeposit,endingValue)
+	{
+		var html="<b>Total Appreciation</b>=$"+CommaFormatNum(RoundTo(accumAppreciation,2))+"<br />";
+		html+="<b>Total Deposits</b>=$"+CommaFormatNum(RoundTo(accumDeposit,2))+"<br />";
+		html+="<b>Ending Account Value</b>=$"+CommaFormatNum(RoundTo(endingValue,2))+"<br />";
+		document.getElementById("totalsDiv").innerHTML=html;
+	}
+	//**********************************************
+	function LoadTextboxFloat(id,defaultValue)
+	{
+		var val=Trim(document.getElementById(id).value);
+		if(val==""){return defaultValue;}
+		return parseFloat(val);
+	}
+	//**********************************************
+	function LoadTextboxInt(id,defaultValue)
+	{
+		var val=Trim(document.getElementById(id).value);
+		if(val==""){return defaultValue;}
+		return parseInt(val);
+	}
+	//**********************************************
+	function CalcValueImpactPercent(deposit,accumVal)
+	{
+		if(accumVal==0){return 100;}
+		return deposit/accumVal*100;
+	}
+	//**********************************************
+	function OnKeyDown(evt)
+	{
+		evt=evt?evt:window.event; // compatibility
+		if(evt.keyCode==13)
+		{
+			GenDataTable();
+			return false;
+		}
+		return true;
+	}
+	//**********************************************
+	</script>
+
+	<link href="../../main.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	.layoutTbl{margin:0px; padding:0px; font-family:Verdana; font-size:14px;}
+	.layoutTbl td{margin:0px; padding:0px; font-family:Verdana; font-size:14px;}
+	.inputTbl{margin:0px; padding:0px; font-family:Verdana; font-size:14px;}
+	.inputTbl td{margin:0px; padding:5px; font-family:Verdana; font-size:14px;}
+	</style>
+</head>
+<body onkeydown="return OnKeyDown(event);">
+<form name="mainForm">
+<div class="g_hline"></div>
+<table class="g_hdrBg"><tr><td style="vertical-align:middle;">&nbsp;Compounding Appreciation Calculator</td></tr></table>
+<div class="g_hline"></div>
+<div class="g_bcDiv">
+	&nbsp;
+	<a href="../../index.htm" class="g_navLink12px">Home</a> &gt;
+	<a href="../_menu.htm" class="g_navLink12px">Investing</a> &gt;
+	Compounding Appreciation Calculator
+</div>
+<div class="g_hline"></div>
+
+<div style="padding:10px;">
+
+	<table class="layoutTbl">
+	<tr>
+		<td style="vertical-align:top;">
+			<table cellspacing="0" class="inputTbl">
+			<tr>
+				<td>
+					Starting Amount<br />
+					<input id="startingAmountTb" type="text" value="5000" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Annual Deposit<br />
+					<input id="annualDepositTb" type="text" value="5000" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Annual Growth Rate<br />
+					<input id="annualGrowthRateTb" type="text" value=".1" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Years<br />
+					<input id="yearsTb" type="text" value="10" />
+				</td>
+			</tr>
+			</table>
+		</td>
+		<td style="vertical-align:bottom; padding-left:5px; padding-right:5px;">
+			<br />
+			<input type="button" value="Generate Data Table" onclick="GenDataTable();" />
+		</td>
+	</tr>
+	</table>
+
+	<br />
+	<div id="dataTblDiv"></div>
+	<div id="totalsDiv" style="padding:5px;"></div>
+</div>
+
+</form>
+</body>
+</html>

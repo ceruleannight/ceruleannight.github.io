@@ -1,0 +1,61 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Ben Graham Calc</title>
+	<script src="../Scripts/InvestFnc.js" type="text/javascript"></script>
+	<script type="text/jscript">
+	//*************************************************
+	function Calculate()
+	{
+		var ttmEps=parseFloat(document.getElementById("ttmEpsTb").value,10);
+		var mrqBv=parseFloat(document.getElementById("mrqBvTb").value,10);
+		var constVal=parseFloat(document.getElementById("constValTb").value,10);
+
+		var bgNum=CalcBenGrahamNum(ttmEps,mrqBv,constVal)
+		document.getElementById("outputDiv").innerHTML="Graham Number: "+bgNum;
+	}
+	//*************************************************
+	function OnKeyDown(evt)
+	{
+		evt=evt?evt:window.event; // compatibility
+		if(evt.keyCode==13){Calculate();}
+		return true;
+	}
+	//*************************************************
+	</script>
+
+	<link href="../../main.css" rel="stylesheet" type="text/css" />
+</head>
+<body onkeydown="return OnKeyDown(event);">
+<div class="g_hline"></div>
+<table class="g_hdrBg"><tr><td style="vertical-align:middle;">&nbsp;Ben Graham Number Calculator</td></tr></table>
+<div class="g_hline"></div>
+
+<div class="g_bcDiv">
+	&nbsp;
+	<a href="../../index.htm" class="g_navLink12px">Home</a> &gt;
+	<a href="../_menu.htm" class="g_navLink12px">Investing</a> &gt;
+	Ben Graham Number Calculator
+</div>
+<div class="g_hline"></div>
+
+<div style="padding:10px; width:600px;">
+	<br />
+
+		TTM EPS<br />
+		<input id="ttmEpsTb" type="text" style="width:60px;" /><br />
+		<br />
+		MRQ Book Value per Share<br />
+		<input id="mrqBvTb" type="text" style="width:60px;" /><br />
+		<br />
+		Graham Const.<br />
+		<input id="constValTb" type="text" value="22.5" style="width:60px;" /><br />
+		<br />
+		<input type="button" value="Calculate" onclick="Calculate();" /><br />
+		<br />
+	<div id="outputDiv"></div>
+	<br />
+</div>
+</body>
+</html>

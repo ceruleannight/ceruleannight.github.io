@@ -1,0 +1,94 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Annualized Gain Calculator</title>
+
+	<script src="../../Scripts/CommonFnc.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	//*****************************************************
+	function PageInit()
+	{
+		var dt=new Date();
+		var nowStr=""+dt.getFullYear()+"/"+(dt.getMonth()+1)+"/"+dt.getDate();;
+		document.getElementById("startDateTb").value=nowStr;
+		document.getElementById("endDateTb").value=nowStr;
+	}
+	//*****************************************************
+	function Calculate()
+	{
+		var startDate=document.getElementById("startDateTb").value;
+		var endDate=document.getElementById("endDateTb").value;
+		var startPrice=parseFloat(document.getElementById("startPriceTb").value);
+		var endPrice=parseFloat(document.getElementById("endPriceTb").value);
+		
+		var dt1=new Date(startDate);
+		var dt2=new Date(endDate);
+		var msDiff=dt2.valueOf()-dt1.valueOf(); // (milliseconds)
+		var years=msDiff/1000/60/60/24/365;
+		
+		var priceDiff=endPrice-startPrice;
+		var priceGainPercent=priceDiff/startPrice;
+		
+		var annualizedGain=priceGainPercent/years;
+		
+		var outTxt="<b>Total gain:</b> "+FormatPercent(priceGainPercent)+"%<br />";
+		outTxt+="<b>Annualized gain:</b> "+FormatPercent(annualizedGain)+"%<br />";
+		
+		document.getElementById("gainDiv").innerHTML=outTxt;
+	}
+	//*****************************************************
+	function FormatPercent(value)
+	{
+		return Math.round(value*10000)/100;
+	}
+	//*****************************************************
+	function OnKeyDown(evt)
+	{
+		evt=evt?evt:window.event; // compatibility
+		if(evt.keyCode==13){Calculate();}
+		return true;
+	}
+	//*************************************************
+	</script>
+
+	<link href="../../main.css" rel="stylesheet" type="text/css" />
+</head>
+<body onload="PageInit();" onkeydown="return OnKeyDown(event);">
+<div class="g_hline"></div>
+<table class="g_hdrBg"><tr><td style="vertical-align:middle;">&nbsp;Annualized Gain Calculator</td></tr></table>
+<div class="g_hline"></div>
+<div class="g_bcDiv">
+	&nbsp;
+	<a href="../../index.htm" class="g_navLink12px">Home</a> &gt;
+	<a href="../_menu.htm" class="g_navLink12px">Investing</a> &gt;
+	Annualized Gain Calculator
+</div>
+<div class="g_hline"></div>
+
+<div style="padding:10px; width:600px;">
+	<table class="g_displayTbl" cellspacing="0">
+	<tr class="g_tblHrdBg">
+		<td>&nbsp;</td>
+		<th>Start</th>
+		<th>End</th>
+	</tr>
+	<tr>
+		<td>Date</td>
+		<td><input id="startDateTb" type="text" style="width:100px;" value="2008/10/1"  /></td>
+		<td><input id="endDateTb" type="text" style="width:100px;" value="2011/2/12" /></td>
+	</tr>
+	<tr>
+		<td>Price</td>
+		<td><input id="startPriceTb" type="text" style="width:100px;" value="30.08" /></td>
+		<td><input id="endPriceTb" type="text" style="width:100px;" value="42.58" /></td>
+	</tr>
+	</table>
+	<br />
+	<input type="button" onclick="Calculate();" value="Calculate" /><br />
+	<br />
+	<div id="gainDiv"></div>
+</div>
+</body>
+</html>

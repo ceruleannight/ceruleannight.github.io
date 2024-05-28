@@ -1,0 +1,237 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Gain Calculator</title>
+
+	<script src="../../Scripts/CommonFnc.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	//*****************************************************
+	function PageInit()
+	{
+		var dt=new Date();
+		var startStr=""+dt.getFullYear()+"/"+(dt.getMonth()+1)+"/"+dt.getDate();;
+		var endStr=""+(dt.getFullYear()+1)+"/"+(dt.getMonth()+1)+"/"+dt.getDate();;
+		document.getElementById("startDateTb").value=startStr;
+		document.getElementById("endDateTb").value=endStr;
+	}
+	//*****************************************************
+	function Calculate()
+	{
+		var startDate=Trim(document.getElementById("startDateTb").value);
+		var endDate=Trim(document.getElementById("endDateTb").value);
+		var startPrice=Trim(document.getElementById("startPriceTb").value);
+		var endPrice=Trim(document.getElementById("endPriceTb").value);
+		//var dividendsValue=Trim(document.getElementById("dividendsValueTb").value);
+		
+		if(startDate=="" || endDate=="" || startPrice=="" || endPrice=="")
+		{
+			alert("Start and end dates and share prices are all required fields.");
+			return;
+		}
+
+		// Convert values to float
+		startPrice=parseFloat(startPrice);
+		endPrice=parseFloat(endPrice);
+		//dividendsValue=parseFloat(dividendsValue);
+		
+		var dt1=new Date(startDate);
+		var dt2=new Date(endDate);
+		var msDiff=dt2.valueOf()-dt1.valueOf(); // (milliseconds)
+		var years=msDiff/1000/60/60/24/365;
+		var months=msDiff/1000/60/60/24/365*12;
+		var days=msDiff/1000/60/60/24;
+		
+		var ratio=endPrice/startPrice;
+		var priceDiff=endPrice-startPrice;
+		var priceGainPercent=priceDiff/startPrice;
+
+		//var annualizedGain=priceGainPercent/years;
+		var annualizedGain=Math.pow(endPrice/startPrice,1/years)-1;
+		
+		
+		var signTxt=ratio>=1?"+":"";
+		var colorClass=ratio>=1?"positive":"negative";
+		
+		//----------------------------------------
+		// Calculate value values
+		var sharesFieldMgr=new Field("sharesTb");
+		var startValueFieldMgr=new Field("startValueTb");
+		var shares=sharesFieldMgr.floatValue;
+		var startValue=startValueFieldMgr.floatValue;
+		var endValue="";
+		
+		var sharesOutput="";
+		
+		if(!sharesFieldMgr.isBlank)
+		{
+			// Share count is provided to calculate value totals from this.
+			startValue=shares*startPrice;
+			endValue=shares*endPrice;
+			document.getElementById("startValueTb").value=RoundTo(startValue,2);
+			document.getElementById("endValueTd").innerHTML=RoundTo(endValue,2);
+		}
+		else if(!startValueFieldMgr.isBlank)
+		{
+			// Start value is provided, but share count is not so we will calculate share count.
+			shares=startValue/startPrice;
+			sharesOutput=""+shares;
+			endValue=shares*endPrice;
+			//document.getElementById("sharesTb").value=RoundTo(shares,5);
+			document.getElementById("endValueTd").innerHTML=RoundTo(endValue,2);
+		}
+		else
+		{
+			document.getElementById("endValueTd").innerHTML="";
+		}
+		//----------------------------------------
+
+		priceDiff=signTxt+"$"+RoundTo(priceDiff,2);
+
+		var valueDiff="";
+		if(endValue!="")
+		{
+			valueDiff=signTxt+"$"+RoundTo(endValue-startValue,2);
+		}
+
+		var outTxt="";
+		// Share change
+		outTxt+="<span class=\"g_text16px\">Share Change</span><br />";
+		outTxt+="<div class=\"indent\">";
+		outTxt+="<b>Change ratio:</b> "+RoundTo(ratio,5)+"<br />";
+		outTxt+="<b>Percent Change:</b> <span class=\""+colorClass+"\">"+signTxt+FormatPercent(priceGainPercent)+"%</span><br />";
+		//outTxt+=annualizedGain+"<br />";
+		outTxt+="<b>Avg. Annualized Change:</b> <span class=\""+colorClass+"\">"+signTxt+FormatPercent(annualizedGain)+"%</span><br />";
+		if(sharesOutput!="")
+		{
+			outTxt+="<b>Shares Bought:</b> <span class=\""+colorClass+"\">"+RoundTo(sharesOutput,2)+"</span><br />";
+		}
+		outTxt+="</div>";
+		outTxt+="<br />";
+
+		// Total change with dividends
+		var dividendFieldMgr=new Field("dividendsValueTb");
+		if(valueDiff!="" && !dividendFieldMgr.isBlank)
+		{
+			endValue+=dividendFieldMgr.floatValue;
+			var totalRatio=endValue/startValue;
+			var totalValueDiff=endValue-startValue;
+			var totalGainPercent=totalValueDiff/startValue;
+			var totalAnnualizedGain=totalGainPercent/years;
+			signTxt=totalRatio>=1?"+":"";
+			colorClass=totalRatio>=1?"positive":"negative";
+
+			outTxt+="<span class=\"g_text16px\">Total Change with Dividends</span><br />";
+			outTxt+="<div class=\"indent\">";
+			outTxt+="<b>Total End Value:</b> "+RoundTo(endValue,2)+"<br />";
+			outTxt+="<b>Change ratio:</b> "+RoundTo(totalRatio,5)+"<br />";
+			outTxt+="<b>Percent Change:</b> <span class=\""+colorClass+"\">"+signTxt+FormatPercent(totalGainPercent)+"%</span><br />";
+			outTxt+="<b>Annualized Change:</b> <span class=\""+colorClass+"\">"+signTxt+FormatPercent(totalAnnualizedGain)+"%</span><br />";
+			
+			outTxt+="</div>";
+			outTxt+="<br />";
+		}
+
+		// Time period break downs
+		outTxt+="<span class=\"g_text16px\">Time Period</span><br />";
+		outTxt+="<div class=\"indent\">";
+		outTxt+="In Years: "+RoundTo(years,2)+"<br />";
+		outTxt+="In Months: "+RoundTo(months,1)+"<br />";
+		outTxt+="In Days: "+RoundTo(days,0)+"<br />";
+		outTxt+="</div>";
+		
+		document.getElementById("priceDiffTd").innerHTML="<span class=\""+colorClass+"\">"+priceDiff+"</span>";
+		document.getElementById("valueDiffTd").innerHTML="<span class=\""+colorClass+"\">"+valueDiff+"</span>";
+		
+		document.getElementById("resultsDiv").innerHTML=outTxt;
+	}
+	//*****************************************************
+	function Field(fieldId)
+	{
+		var fieldValueTxt=Trim(document.getElementById(fieldId).value);
+		
+		this.isBlank=fieldValueTxt=="";
+		this.floatValue=parseFloat(fieldValueTxt);
+		return this;
+	}
+	//*****************************************************
+	function FormatPercent(value)
+	{
+		return Math.round(value*10000)/100;
+	}
+	//*****************************************************
+	function OnKeyDown(evt)
+	{
+		evt=evt?evt:window.event; // compatibility
+		if(evt.keyCode==13){Calculate();}
+		return true;
+	}
+	//*************************************************
+	</script>
+
+	<link href="../../main.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	.positive{color:#00F000;}
+	.negative{color:#F00000;}
+	.indent{padding-left:10px;}
+	</style>
+</head>
+<body onload="PageInit();" onkeydown="return OnKeyDown(event);">
+<div class="g_hline"></div>
+<table class="g_hdrBg"><tr><td style="vertical-align:middle;">&nbsp;General Gain Calculator</td></tr></table>
+<div class="g_hline"></div>
+<div class="g_bcDiv">
+	&nbsp;
+	<a href="../../index.htm" class="g_navLink12px">Home</a> &gt;
+	<a href="../_menu.htm" class="g_navLink12px">Investing</a> &gt;
+	Annualized Gain Calculator
+</div>
+<div class="g_hline"></div>
+
+<div style="padding:10px; width:600px;">
+	<table class="g_displayTbl" cellspacing="0">
+	<tr class="g_tblHrdBg">
+		<td>&nbsp;</td>
+		<th>Start</th>
+		<th>End</th>
+		<th>Difference</th>
+	</tr>
+	<tr>
+		<td>Date</td>
+		<td><input id="startDateTb" type="text" style="width:100px;" value="2008/10/1"  /></td>
+		<td><input id="endDateTb" type="text" style="width:100px;" value="2011/2/12" /></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Share Price</td>
+		<td><input id="startPriceTb" type="text" style="width:100px;" value="30.08" /></td>
+		<td><input id="endPriceTb" type="text" style="width:100px;" value="42.58" /></td>
+		<td id="priceDiffTd"></td>
+	</tr>
+	<tr>
+		<td>Shares</td>
+		<td><input id="sharesTb" type="text" style="width:100px;" value="" /></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Share $ Value</td>
+		<td><input id="startValueTb" type="text" style="width:100px;" value="" /></td>
+		<td id="endValueTd"></td>
+		<td id="valueDiffTd"></td>
+	</tr>
+	<tr>
+		<td>Dividends</td>
+		<td><input id="dividendsValueTb" type="text" style="width:100px;" value="" /></td>
+		<td></td>
+		<td></td>
+	</tr>
+	</table>
+	<br />
+	<input type="button" onclick="Calculate();" value="Calculate" /><br />
+	<br />
+	<div id="resultsDiv"></div>
+</div>
+</body>
+</html>
